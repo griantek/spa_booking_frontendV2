@@ -51,6 +51,7 @@ function ModifyAppointmentComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [chatNo, setChatNo] = useState(true);
 
+  const token = searchParams.get("token");
   useEffect(() => {
     const token = searchParams.get("token");
     const phoneParam = searchParams.get("phone");
@@ -196,6 +197,13 @@ function ModifyAppointmentComponent() {
         // Send updated data to the backend
         await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
           ...formData,
+          token,
+        });
+        
+        
+        console.log("Payload to backend:", {
+          ...formData,
+          token,
         });
 
         // Pass all parameters to the Confirmation page
@@ -212,7 +220,7 @@ function ModifyAppointmentComponent() {
   const handleCancel = async (e: PressEvent) => {
     try {
       await axios.post(`${API_URLS.BACKEND_URL}/cancel-appointment`, {
-        phone: formData.phone,
+        phone: formData.phone,token:token,
       });
 
       router.push(
