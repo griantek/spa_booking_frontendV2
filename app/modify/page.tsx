@@ -52,6 +52,7 @@ function ModifyAppointmentComponent() {
   const [chatNo, setChatNo] = useState(true);
 
   const token = searchParams.get("token");
+
   useEffect(() => {
     const token = searchParams.get("token");
     const phoneParam = searchParams.get("phone");
@@ -104,6 +105,7 @@ function ModifyAppointmentComponent() {
       } catch (error) {
         console.error("Error validating token:", error);
         setErrors({ general: "Invalid or expired token." });
+        router.push("/tokenexp");
       } finally {
         setIsLoading(false);
       }
@@ -115,7 +117,7 @@ function ModifyAppointmentComponent() {
     } else if (phoneParam) {
       fetchAppointmentData(phoneParam);
     } else {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }, [searchParams]);
 
@@ -199,7 +201,6 @@ function ModifyAppointmentComponent() {
           ...formData,
           token,
         });
-        
 
         // Pass all parameters to the Confirmation page
         router.push(
@@ -215,7 +216,8 @@ function ModifyAppointmentComponent() {
   const handleCancel = async (e: PressEvent) => {
     try {
       await axios.post(`${API_URLS.BACKEND_URL}/cancel-appointment`, {
-        phone: formData.phone,token:token,
+        phone: formData.phone,
+        token: token,
       });
 
       router.push(
@@ -422,51 +424,53 @@ function ModifyAppointmentComponent() {
 
 export default function ModifyAppointment() {
   return (
-    <Suspense fallback={
-      <div className="max-w-md mx-auto p-4">
-        <Card>
-          <CardBody className="space-y-4">
-            <Skeleton className="rounded-lg">
-              <div className="h-12 rounded-lg bg-default-300"></div>
-            </Skeleton>
-
-            <div className="space-y-3">
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
-              </Skeleton>
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
-              </Skeleton>
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
+    <Suspense
+      fallback={
+        <div className="max-w-md mx-auto p-4">
+          <Card>
+            <CardBody className="space-y-4">
+              <Skeleton className="rounded-lg">
+                <div className="h-12 rounded-lg bg-default-300"></div>
               </Skeleton>
 
-              <div className="flex gap-4">
+              <div className="space-y-3">
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-10 rounded-lg bg-default-200"></div>
                 </Skeleton>
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-10 rounded-lg bg-default-200"></div>
                 </Skeleton>
-              </div>
-
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-20 rounded-lg bg-default-200"></div>
-              </Skeleton>
-
-              <div className="flex gap-4">
                 <Skeleton className="w-full rounded-lg">
-                  <div className="h-12 rounded-lg bg-default-300"></div>
+                  <div className="h-10 rounded-lg bg-default-200"></div>
                 </Skeleton>
+
+                <div className="flex gap-4">
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-10 rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-10 rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                </div>
+
                 <Skeleton className="w-full rounded-lg">
-                  <div className="h-12 rounded-lg bg-default-300"></div>
+                  <div className="h-20 rounded-lg bg-default-200"></div>
                 </Skeleton>
+
+                <div className="flex gap-4">
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-12 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-12 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    }>
+            </CardBody>
+          </Card>
+        </div>
+      }
+    >
       <ModifyAppointmentComponent />
     </Suspense>
   );
