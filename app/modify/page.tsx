@@ -107,7 +107,7 @@ function ModifyAppointmentComponent() {
         setErrors({ general: "Invalid or expired token." });
         // router.push("/tokenexp");
         
-        window.location.href = `https://wa.me/${chatNo}`;
+        window.location.href = `https://wa.me/`;
       } finally {
         setIsLoading(false);
       }

@@ -81,7 +81,7 @@ function RegisterComponent() {
         console.error("Error validating token:", error);
         setErrors({ token: "Invalid or expired token" });
         // router.push("/tokenexp");
-        window.location.href = `https://wa.me/${chatNo}`;
+        window.location.href = `https://wa.me/`;
       } finally {
         setIsLoading(false);
       }
