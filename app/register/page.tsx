@@ -212,44 +212,7 @@ function RegisterComponent() {
 
   // if (isLoading) {
   //   return (
-  //     <div className="flex items-center justify-center p-4">
-  //       <Card className="w-full max-w-md">
-  //         <CardBody className="space-y-4">
-  //           <Skeleton className="rounded-lg">
-  //             <div className="h-12 rounded-lg bg-default-300"></div>
-  //           </Skeleton>
-            
-  //           <div className="space-y-3">
-  //             <Skeleton className="w-full rounded-lg">
-  //               <div className="h-10 rounded-lg bg-default-200"></div>
-  //             </Skeleton>
-  //             <Skeleton className="w-full rounded-lg">
-  //               <div className="h-10 rounded-lg bg-default-200"></div>
-  //             </Skeleton>
-  //             <Skeleton className="w-full rounded-lg">
-  //               <div className="h-10 rounded-lg bg-default-200"></div>
-  //             </Skeleton>
-              
-  //             <div className="flex gap-4">
-  //               <Skeleton className="w-full rounded-lg">
-  //                 <div className="h-10 rounded-lg bg-default-200"></div>
-  //               </Skeleton>
-  //               <Skeleton className="w-full rounded-lg">
-  //                 <div className="h-10 rounded-lg bg-default-200"></div>
-  //               </Skeleton>
-  //             </div>
-              
-  //             <Skeleton className="w-full rounded-lg">
-  //               <div className="h-20 rounded-lg bg-default-200"></div>
-  //             </Skeleton>
-              
-  //             <Skeleton className="w-full rounded-lg">
-  //               <div className="h-12 rounded-lg bg-default-300"></div>
-  //             </Skeleton>
-  //           </div>
-  //         </CardBody>
-  //       </Card>
-  //     </div>
+      
   //   );
   // }
 
@@ -362,7 +325,46 @@ function RegisterComponent() {
 
 export default function Register() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardBody className="space-y-4">
+            <Skeleton className="rounded-lg">
+              <div className="h-12 rounded-lg bg-default-300"></div>
+            </Skeleton>
+            
+            <div className="space-y-3">
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              
+              <div className="flex gap-4">
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+              </div>
+              
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-20 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-12 rounded-lg bg-default-300"></div>
+              </Skeleton>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    }>
       <RegisterComponent />
     </Suspense>
   );

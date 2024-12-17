@@ -249,51 +249,7 @@ function ModifyAppointmentComponent() {
   //   return <div>Loading...</div>;
   // }
   if (isLoading) {
-    return (
-      <div className="max-w-md mx-auto p-4">
-        <Card>
-          <CardBody className="space-y-4">
-            <Skeleton className="rounded-lg">
-              <div className="h-12 rounded-lg bg-default-300"></div>
-            </Skeleton>
-
-            <div className="space-y-3">
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
-              </Skeleton>
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
-              </Skeleton>
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-10 rounded-lg bg-default-200"></div>
-              </Skeleton>
-
-              <div className="flex gap-4">
-                <Skeleton className="w-full rounded-lg">
-                  <div className="h-10 rounded-lg bg-default-200"></div>
-                </Skeleton>
-                <Skeleton className="w-full rounded-lg">
-                  <div className="h-10 rounded-lg bg-default-200"></div>
-                </Skeleton>
-              </div>
-
-              <Skeleton className="w-full rounded-lg">
-                <div className="h-20 rounded-lg bg-default-200"></div>
-              </Skeleton>
-
-              <div className="flex gap-4">
-                <Skeleton className="w-full rounded-lg">
-                  <div className="h-12 rounded-lg bg-default-300"></div>
-                </Skeleton>
-                <Skeleton className="w-full rounded-lg">
-                  <div className="h-12 rounded-lg bg-default-300"></div>
-                </Skeleton>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    );
+    console.log("Loading.......")
   }
 
   return (
@@ -419,7 +375,51 @@ function ModifyAppointmentComponent() {
 
 export default function ModifyAppointment() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+        <div className="max-w-md mx-auto p-4">
+          <Card>
+            <CardBody className="space-y-4">
+              <Skeleton className="rounded-lg">
+                <div className="h-12 rounded-lg bg-default-300"></div>
+              </Skeleton>
+  
+              <div className="space-y-3">
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+  
+                <div className="flex gap-4">
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-10 rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-10 rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                </div>
+  
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-20 rounded-lg bg-default-200"></div>
+                </Skeleton>
+  
+                <div className="flex gap-4">
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-12 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-12 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+    }>
       <ModifyAppointmentComponent />
     </Suspense>
   );
