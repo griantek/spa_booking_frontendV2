@@ -80,8 +80,7 @@ function RegisterComponent() {
       } catch (error) {
         console.error("Error validating token:", error);
         setErrors({ token: "Invalid or expired token" });
-        // router.push("/tokenexp");
-        window.location.href = `https://wa.me/`;
+        router.push("/tokenexp");
       } finally {
         setIsLoading(false);
       }

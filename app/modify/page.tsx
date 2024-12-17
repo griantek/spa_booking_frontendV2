@@ -105,9 +105,7 @@ function ModifyAppointmentComponent() {
       } catch (error) {
         console.error("Error validating token:", error);
         setErrors({ general: "Invalid or expired token." });
-        // router.push("/tokenexp");
-        
-        window.location.href = `https://wa.me/`;
+        router.push("/tokenexp");
       } finally {
         setIsLoading(false);
       }
