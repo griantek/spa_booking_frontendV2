@@ -1,5 +1,5 @@
-"use client"
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { 
@@ -8,7 +8,6 @@ import {
   SelectItem, 
   Textarea, 
   Button, 
-  Image, 
   Card, 
   CardBody 
 } from "@nextui-org/react";
@@ -33,7 +32,7 @@ interface Errors {
   general?: string;
 }
 
-export default function ModifyAppointment() {
+const ModifyAppointmentForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -169,11 +168,8 @@ export default function ModifyAppointment() {
       setMessage("Failed to update the appointment.");
     }
   };
-  
 
   const handleCancel = async (e: PressEvent) => {
-    // e.preventDefault();
-  
     try {
       await axios.post(`${API_URLS.BACKEND_URL}/cancel-appointment`, {
         phone: formData.phone,
@@ -209,19 +205,14 @@ export default function ModifyAppointment() {
     { value: "Nail Art & Design", label: "Nail Art & Design" },
   ];
 
-//   if (isLoading) {
-//     return <div>Loading...</div>;
-//   }
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="max-w-md mx-auto p-4">
       <Card>
         <CardBody>
-          {/* <Image 
-            src={DEFAULT_VALUES.IMAGE_URL} 
-            alt="Spa" 
-            className="mb-4 w-full object-cover"
-          /> */}
           <h1 className="text-2xl font-bold mb-4 text-center">
             Modify Your Appointment
           </h1>
@@ -333,5 +324,13 @@ export default function ModifyAppointment() {
         </CardBody>
       </Card>
     </div>
+  );
+};
+
+export default function ModifyAppointment() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ModifyAppointmentForm />
+    </Suspense>
   );
 }

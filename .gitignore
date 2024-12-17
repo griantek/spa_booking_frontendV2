@@ -39,3 +39,4 @@ app/blog
 app/docs
 app/pricing
 
+.env
