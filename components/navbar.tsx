@@ -61,7 +61,7 @@ export const Navbar = () => {
               style={{ filter: "grayscale(100%)" }}
             />
 
-            <p className="text-inherit">AGE N TRICS</p>
+            <p className="text-inherit">XCELINFOTECH</p>
           </NextLink>
         </NavbarBrand>
       </NavbarContent>
