@@ -1,15 +1,16 @@
-"use client"
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import axios from 'axios';
-import { 
-  Input, 
-  Select, 
-  SelectItem, 
-  Textarea, 
-  Button, 
-  Card, 
-  CardBody 
+"use client";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
+import {
+  Input,
+  Select,
+  SelectItem,
+  Textarea,
+  Button,
+  Card,
+  CardBody,
+  Skeleton,
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
 import { PressEvent } from "@react-types/shared";
@@ -35,10 +36,10 @@ interface Errors {
 function ModifyAppointmentComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    phone: searchParams.get('phone') || "", // Get phone from URL parameter
+    phone: searchParams.get("phone") || "", // Get phone from URL parameter
     service: "",
     time: "",
     date: "",
@@ -62,8 +63,8 @@ function ModifyAppointmentComponent() {
         const appointmentResponse = await axios.get(
           `${API_URLS.BACKEND_URL}/appointment/${phoneToFetch}`
         );
-        
-        setFormData(prevData => ({
+
+        setFormData((prevData) => ({
           ...prevData,
           name: appointmentResponse.data.name || "",
           service: appointmentResponse.data.service || "",
@@ -88,10 +89,10 @@ function ModifyAppointmentComponent() {
           `${API_URLS.BACKEND_URL}/validate-token?token=${token}`
         );
         const { phone, name, chat } = tokenResponse.data;
-        
+
         setChatNo(chat);
 
-        setFormData(prevData => ({
+        setFormData((prevData) => ({
           ...prevData,
           phone,
           name,
@@ -117,55 +118,94 @@ function ModifyAppointmentComponent() {
     }
   }, [searchParams]);
 
-  const validateFields = (): Errors => {
-    const newErrors: Errors = {};
-    
-    if (!formData.name) newErrors.name = "Name is required.";
-    if (!formData.service) newErrors.service = "Service is required.";
-    if (!formData.time) newErrors.time = "Time is required.";
-    if (!formData.date) newErrors.date = "Date is required.";
-  
-    const selectedDateTime = new Date(`${formData.date}T${formData.time}`);
-    const currentDateTime = new Date();
-  
-    if (formData.date === getTodayDate()) {
-      const timeDifference = Math.floor((selectedDateTime.getTime() - currentDateTime.getTime()) / (1000 * 60));
-      if (timeDifference < -1) {
-        newErrors.time = "Selected time has already passed.";
+  const validateField = (name: string, value: string) => {
+    const newErrors: Errors = { ...errors };
+    const currentDate = getTodayDate();
+    const currentTime = getCurrentTime();
+
+    if (name === "date") {
+      if (!value) {
+        newErrors.date = "Date is required.";
+      } else if (value < currentDate) {
+        newErrors.date = "Selected date cannot be in the past.";
+      } else {
+        delete newErrors.date;
       }
     }
-  
-    return newErrors;
+
+    if (name === "time") {
+      if (!value) {
+        newErrors.time = "Time is required.";
+      } else if (formData.date === currentDate && value < currentTime) {
+        newErrors.time = "Selected time has already passed.";
+      } else {
+        delete newErrors.time;
+      }
+    }
+
+    setErrors(newErrors);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const validateFields = (): boolean => {
+    const newErrors: Errors = {};
+    const currentDate = getTodayDate();
+    const currentTime = getCurrentTime();
+
+    if (!formData.date) {
+      newErrors.date = "Date is required.";
+    } else if (formData.date < currentDate) {
+      newErrors.date = "Selected date cannot be in the past.";
+    }
+
+    if (!formData.time) {
+      newErrors.time = "Time is required.";
+    } else if (formData.date === currentDate && formData.time < currentTime) {
+      newErrors.time = "Selected time has already passed.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      | HTMLInputElement
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
-    setErrors(prevErrors => ({ ...prevErrors, [name]: "" }));
+
+    // Update form data
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Validate the specific field
+    validateField(name, value);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateFields();
-  
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-  
-    try {
-      // Send updated data to the backend
-      await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
-        ...formData,
-      });
-  
-      // Pass all parameters to the Confirmation page
-      router.push(
-        `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
-      );
-    } catch (error) {
-      console.error("Error updating appointment:", error);
-      setMessage("Failed to update the appointment.");
+    if (validateFields()) {
+      // console.log("Form is valid", formData);
+      try {
+        // Send updated data to the backend
+        await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
+          ...formData,
+        });
+
+        // Pass all parameters to the Confirmation page
+        router.push(
+          `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
+        );
+      } catch (error) {
+        console.error("Error updating appointment:", error);
+        setMessage("Failed to update the appointment.");
+      }
     }
   };
 
@@ -174,7 +214,7 @@ function ModifyAppointmentComponent() {
       await axios.post(`${API_URLS.BACKEND_URL}/cancel-appointment`, {
         phone: formData.phone,
       });
-  
+
       router.push(
         "/confirmation?message=Your appointment has been cancelled successfully!"
       );
@@ -205,8 +245,55 @@ function ModifyAppointmentComponent() {
     { value: "Nail Art & Design", label: "Nail Art & Design" },
   ];
 
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="max-w-md mx-auto p-4">
+        <Card>
+          <CardBody className="space-y-4">
+            <Skeleton className="rounded-lg">
+              <div className="h-12 rounded-lg bg-default-300"></div>
+            </Skeleton>
+
+            <div className="space-y-3">
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-10 rounded-lg bg-default-200"></div>
+              </Skeleton>
+
+              <div className="flex gap-4">
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-10 rounded-lg bg-default-200"></div>
+                </Skeleton>
+              </div>
+
+              <Skeleton className="w-full rounded-lg">
+                <div className="h-20 rounded-lg bg-default-200"></div>
+              </Skeleton>
+
+              <div className="flex gap-4">
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-12 rounded-lg bg-default-300"></div>
+                </Skeleton>
+                <Skeleton className="w-full rounded-lg">
+                  <div className="h-12 rounded-lg bg-default-300"></div>
+                </Skeleton>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -261,10 +348,10 @@ function ModifyAppointmentComponent() {
                 onChange={handleChange}
                 min={getTodayDate()}
                 isInvalid={!!errors.date}
+                color={errors.date ? "danger" : "default"}
                 errorMessage={errors.date}
                 fullWidth
               />
-
               <Input
                 type="time"
                 label="Time"
@@ -272,8 +359,13 @@ function ModifyAppointmentComponent() {
                 value={formData.time}
                 onChange={handleChange}
                 disabled={!formData.date}
-                min={formData.date === getTodayDate() ? getCurrentTime() : undefined}
+                min={
+                  formData.date === getTodayDate()
+                    ? getCurrentTime()
+                    : undefined
+                }
                 isInvalid={!!errors.time}
+                color={errors.time ? "danger" : "default"}
                 errorMessage={errors.time}
                 fullWidth
               />
@@ -288,27 +380,27 @@ function ModifyAppointmentComponent() {
             />
 
             <div className="flex gap-4">
-              <Button 
-                color="primary" 
-                type="submit" 
+              <Button
+                color="primary"
+                type="submit"
                 className={buttonStyles({
-                    color: "primary",
-                    radius: "full",
-                    variant: "shadow",
-                  })}
+                  color: "primary",
+                  radius: "full",
+                  variant: "shadow",
+                })}
                 fullWidth
               >
                 Update
               </Button>
-              <Button 
-                color="danger" 
-                variant="bordered" 
-                onPress={handleCancel} 
+              <Button
+                color="danger"
+                variant="bordered"
+                onPress={handleCancel}
                 className={buttonStyles({
-                    color: "danger",
-                    radius: "full",
-                    variant: "shadow",
-                  })}
+                  color: "danger",
+                  radius: "full",
+                  variant: "shadow",
+                })}
                 fullWidth
               >
                 Cancel Appointment
@@ -317,9 +409,7 @@ function ModifyAppointmentComponent() {
           </form>
 
           {message && (
-            <div className="mt-4 text-center text-red-500">
-              {message}
-            </div>
+            <div className="mt-4 text-center text-red-500">{message}</div>
           )}
         </CardBody>
       </Card>

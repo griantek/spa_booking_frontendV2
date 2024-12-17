@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardBody, Spinner } from "@nextui-org/react";
+import { Button, Card, CardBody, Spinner } from "@nextui-org/react";
 import { CheckCircleIcon } from "lucide-react";
 
 import {
@@ -11,6 +11,8 @@ import {
   TagOutlined as TagIcon,
   UserOutlined as ProfileIcon,
 } from "@ant-design/icons";
+
+import { button as buttonStyles } from "@nextui-org/theme";
 
 interface AppointmentDetails {
   name?: string;
@@ -22,19 +24,21 @@ interface AppointmentDetails {
 
 function ConfirmationComponent() {
   const searchParams = useSearchParams();
-  const [appointmentDetails, setAppointmentDetails] = useState<AppointmentDetails | null>(null);
+  const [appointmentDetails, setAppointmentDetails] =
+    useState<AppointmentDetails | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Extract parameters from the URL
-  const message = searchParams.get("message") || "Appointment Confirmed";
-  const phone = searchParams.get("phone") || undefined;  // Convert null to undefined
-  const note = searchParams.get("note") || "Thank you for your booking!";
-  const name = searchParams.get("name") || undefined;    // Convert null to undefined
-  const service = searchParams.get("service") || undefined;  // Convert null to undefined
-  const date = searchParams.get("date") || undefined;    // Convert null to undefined
-  const time = searchParams.get("time") || undefined;    // Convert null to undefined  
+  const message = searchParams.get("message") || undefined;
+  const phone = searchParams.get("phone") || undefined;
+  const note = searchParams.get("note") || undefined;
+  const name = searchParams.get("name") || undefined;
+  const service = searchParams.get("service") || undefined;
+  const date = searchParams.get("date") || undefined;
+  const time = searchParams.get("time") || undefined;
+  const chatNo = searchParams.get("chatbotNo") || undefined;
 
   useEffect(() => {
     setIsLoading(true);
@@ -62,6 +66,13 @@ function ConfirmationComponent() {
     return `${adjustedHours}:${minutes} ${period}`;
   };
 
+  // New function to handle closing and redirecting to WhatsApp
+  const handleCloseApp = () => {
+    if (chatNo) {
+      window.location.href = `https://wa.me/${chatNo}`; // This will open WhatsApp
+    }
+  };
+
   return (
     <Card className="m-4 max-w-md bg-default-50 shadow-sm">
       <CardBody>
@@ -80,8 +91,21 @@ function ConfirmationComponent() {
               <Spinner size="sm" color="primary" />
             </div>
           ) : isCanceled ? (
-            <div className="text-center text-default-600">
-              {note && <p>{note}</p>}
+            <div>
+              <div className="text-center text-default-600">
+                {note && <p>{note}</p>}
+              </div>
+              <Button
+                onClick={handleCloseApp}
+                className={`${buttonStyles({
+                  color: "success",
+                  radius: "full",
+                  variant: "shadow",
+                })} text-white`}
+                fullWidth
+              >
+                Close
+              </Button>
             </div>
           ) : error ? (
             <div className="text-danger text-center py-2">{error}</div>
@@ -90,11 +114,17 @@ function ConfirmationComponent() {
               <div className="space-y-2">
                 {/* Contact and Booking Details */}
                 <div>
-                  <PhoneIcon size={16} className="text-default-500 pr-2 inline-block" />
+                  <PhoneIcon
+                    size={16}
+                    className="text-default-500 pr-2 inline-block"
+                  />
                   <span className="text-default-600">{phone}</span>
                 </div>
                 <div>
-                  <ProfileIcon size={16} className="text-default-500 pr-2 inline-block" />
+                  <ProfileIcon
+                    size={16}
+                    className="text-default-500 pr-2 inline-block"
+                  />
                   <span className="text-default-600">
                     {appointmentDetails.name}
                   </span>
@@ -112,7 +142,9 @@ function ConfirmationComponent() {
                     <div className="flex flex-col items-center">
                       <ClockIcon size={20} className="text-primary mb-1" />
                       <span className="text-small text-default-600">
-                        {appointmentDetails.time ? convertTo12HourFormat(appointmentDetails.time) : 'N/A'}
+                        {appointmentDetails.time
+                          ? convertTo12HourFormat(appointmentDetails.time)
+                          : "N/A"}
                       </span>
                     </div>
                   </div>
@@ -135,6 +167,17 @@ function ConfirmationComponent() {
                     </p>
                   </div>
                 )}
+                <Button
+                  onClick={handleCloseApp}
+                  className={`${buttonStyles({
+                    color: "success",
+                    radius: "full",
+                    variant: "shadow",
+                  })} text-white`}
+                  fullWidth
+                >
+                  Close
+                </Button>
               </div>
             )
           )}
@@ -146,9 +189,13 @@ function ConfirmationComponent() {
 
 export default function Confirmation() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-screen">
-      <Spinner size="lg" color="primary" />
-    </div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center h-screen">
+          <Spinner size="lg" color="primary" />
+        </div>
+      }
+    >
       <ConfirmationComponent />
     </Suspense>
   );

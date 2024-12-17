@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   CardBody,
+  Skeleton,
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
 
@@ -32,6 +33,7 @@ interface Errors {
   date?: string;
   submit?: string;
   token?: string;
+  general?: string;
 }
 
 function RegisterComponent() {
@@ -41,6 +43,7 @@ function RegisterComponent() {
   const phoneParam = searchParams.get("phone");
 
   const [chatNo, setChatNo] = useState<boolean | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -55,9 +58,11 @@ function RegisterComponent() {
 
   useEffect(() => {
     // Validate token and prefill form data
-    if (token) {
-      const fetchTokenData = async () => {
-        try {
+    const fetchTokenData = async () => {
+      try {
+        setIsLoading(true);
+
+        if (token) {
           // Send token to backend for validation
           const response = await axios.get(
             `${API_URLS.BACKEND_URL}/validate-token?token=${token}`
@@ -71,53 +76,116 @@ function RegisterComponent() {
             phone: phone,
             name: name,
           }));
-        } catch (error) {
-          console.error("Error validating token:", error);
-          setErrors({ token: "Invalid or expired token" });
         }
-      };
+      } catch (error) {
+        console.error("Error validating token:", error);
+        setErrors({ token: "Invalid or expired token" });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      fetchTokenData();
-    }
+    fetchTokenData();
   }, [token]);
 
-  const validateFields = (): Errors => {
-    const newErrors: Errors = {};
-    if (!formData.name) newErrors.name = "Name is required.";
-    if (!formData.phone) newErrors.phone = "Phone number is required.";
-    if (!formData.service) newErrors.service = "Please select a service.";
-    if (!formData.time) newErrors.time = "Time is required.";
-    if (!formData.date) newErrors.date = "Date is required.";
-    return newErrors;
-  };
+ const validateField = (name: string, value: string) => {
+     const newErrors: Errors = { ...errors };
+     const currentDate = getTodayDate();
+     const currentTime = getCurrentTime();
+ 
+     if (name === "date") {
+       if (!value) {
+         newErrors.date = "Date is required.";
+       } else if (value < currentDate) {
+         newErrors.date = "Selected date cannot be in the past.";
+       } else {
+         delete newErrors.date;
+       }
+     }
+ 
+     if (name === "time") {
+       if (!value) {
+         newErrors.time = "Time is required.";
+       } else if (formData.date === currentDate && value < currentTime) {
+         newErrors.time = "Selected time has already passed.";
+       } else {
+         delete newErrors.time;
+       }
+     }
+ 
+     setErrors(newErrors);
+   };
+ 
+   const validateFields = (): boolean => {
+     const newErrors: Errors = {};
+     const currentDate = getTodayDate();
+     const currentTime = getCurrentTime();
+ 
+     if (!formData.date) {
+       newErrors.date = "Date is required.";
+     } else if (formData.date < currentDate) {
+       newErrors.date = "Selected date cannot be in the past.";
+     }
+ 
+     if (!formData.time) {
+       newErrors.time = "Time is required.";
+     } else if (formData.date === currentDate && formData.time < currentTime) {
+       newErrors.time = "Selected time has already passed.";
+     }
+ 
+     setErrors(newErrors);
+     return Object.keys(newErrors).length === 0;
+   };
+ 
+   const handleChange = (
+     e: React.ChangeEvent<
+       | HTMLInputElement
+       | HTMLInputElement
+       | HTMLSelectElement
+       | HTMLTextAreaElement
+     >
+   ) => {
+     const { name, value } = e.target;
+ 
+     // Update form data
+     setFormData((prev) => ({
+       ...prev,
+       [name]: value,
+     }));
+ 
+     // Validate the specific field
+     validateField(name, value);
+   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" });
-  };
+  // const handleChange = (
+  //   e: React.ChangeEvent<
+  //     HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  //   >
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setFormData({ ...formData, [name]: value });
+  //   validateField(name, value);
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationErrors = validateFields();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    
+    console.log("reached")
+    if (validateFields()) {
+      console.log("Fields validated")
+      try {
+        await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, formData);
 
-    try {
-      await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, formData);
-
-      router.push(
-        `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
-      );
-    } catch (error) {
-      console.error("Error during submission:", error);
-      setErrors({ submit: "Failed to register the appointment." });
+        router.push(
+          `/confirmation?phone=${formData.phone}&message=Your appointment has been registered successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
+        );
+      } catch (error) {
+        console.error("Error during submission:", error);
+        setErrors({ 
+          submit: "Failed to register the appointment.",
+          general: "An unexpected error occurred. Please try again later."
+        });
+      }
     }
   };
 
@@ -141,6 +209,49 @@ function RegisterComponent() {
     { value: "Hot Stone Massage", label: "Hot Stone Massage" },
     { value: "Nail Art & Design", label: "Nail Art & Design" },
   ];
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center p-4">
+  //       <Card className="w-full max-w-md">
+  //         <CardBody className="space-y-4">
+  //           <Skeleton className="rounded-lg">
+  //             <div className="h-12 rounded-lg bg-default-300"></div>
+  //           </Skeleton>
+            
+  //           <div className="space-y-3">
+  //             <Skeleton className="w-full rounded-lg">
+  //               <div className="h-10 rounded-lg bg-default-200"></div>
+  //             </Skeleton>
+  //             <Skeleton className="w-full rounded-lg">
+  //               <div className="h-10 rounded-lg bg-default-200"></div>
+  //             </Skeleton>
+  //             <Skeleton className="w-full rounded-lg">
+  //               <div className="h-10 rounded-lg bg-default-200"></div>
+  //             </Skeleton>
+              
+  //             <div className="flex gap-4">
+  //               <Skeleton className="w-full rounded-lg">
+  //                 <div className="h-10 rounded-lg bg-default-200"></div>
+  //               </Skeleton>
+  //               <Skeleton className="w-full rounded-lg">
+  //                 <div className="h-10 rounded-lg bg-default-200"></div>
+  //               </Skeleton>
+  //             </div>
+              
+  //             <Skeleton className="w-full rounded-lg">
+  //               <div className="h-20 rounded-lg bg-default-200"></div>
+  //             </Skeleton>
+              
+  //             <Skeleton className="w-full rounded-lg">
+  //               <div className="h-12 rounded-lg bg-default-300"></div>
+  //             </Skeleton>
+  //           </div>
+  //         </CardBody>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex items-center justify-center p-4">
@@ -237,14 +348,9 @@ function RegisterComponent() {
               Register
             </Button>
 
-            {errors.submit && (
+            {(errors.submit || errors.token || errors.general) && (
               <div className="text-red-500 text-center mt-2">
-                {errors.submit}
-              </div>
-            )}
-            {errors.token && (
-              <div className="text-red-500 text-center mt-2">
-                {errors.token}
+                {errors.submit || errors.token || errors.general}
               </div>
             )}
           </form>
