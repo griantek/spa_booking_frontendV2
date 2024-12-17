@@ -174,8 +174,11 @@ function RegisterComponent() {
     if (validateFields()) {
       console.log("Fields validated");
       try {
-        await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, {formData,token});
-
+        await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, {
+          ...formData,
+          token, // Include the token here
+      });
+      
         router.push(
           `/confirmation?phone=${formData.phone}&message=Your appointment has been registered successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
         );

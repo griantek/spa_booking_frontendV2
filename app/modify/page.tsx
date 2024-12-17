@@ -200,11 +200,6 @@ function ModifyAppointmentComponent() {
           token,
         });
         
-        
-        console.log("Payload to backend:", {
-          ...formData,
-          token,
-        });
 
         // Pass all parameters to the Confirmation page
         router.push(
