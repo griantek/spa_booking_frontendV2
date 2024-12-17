@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
@@ -8,7 +8,6 @@ import {
   SelectItem,
   Textarea,
   Button,
-  Image,
   Card,
   CardBody,
 } from "@nextui-org/react";
@@ -35,7 +34,7 @@ interface Errors {
   token?: string;
 }
 
-export default function Register() {
+function RegisterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -144,15 +143,9 @@ export default function Register() {
   ];
 
   return (
-    <div className=" flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody>
-          {/* <Image
-            src={DEFAULT_VALUES.IMAGE_URL}
-            alt="Spa"
-            className="mb-4 w-full object-cover rounded-lg"
-          /> */}
-
           <h1 className="text-2xl font-bold mb-4 text-center">
             Register for a Spa Appointment
           </h1>
@@ -258,5 +251,13 @@ export default function Register() {
         </CardBody>
       </Card>
     </div>
+  );
+}
+
+export default function Register() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterComponent />
+    </Suspense>
   );
 }

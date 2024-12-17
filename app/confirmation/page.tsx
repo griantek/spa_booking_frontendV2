@@ -20,7 +20,7 @@ interface AppointmentDetails {
   notes?: string;
 }
 
-const ConfirmationContent = () => {
+function ConfirmationComponent() {
   const searchParams = useSearchParams();
   const [appointmentDetails, setAppointmentDetails] = useState<AppointmentDetails | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
@@ -81,8 +81,7 @@ const ConfirmationContent = () => {
             </div>
           ) : isCanceled ? (
             <div className="text-center text-default-600">
-              {/* <p>Your appointment has been successfully canceled.</p> */}
-              {/* <p>{note}</p> */}
+              {note && <p>{note}</p>}
             </div>
           ) : error ? (
             <div className="text-danger text-center py-2">{error}</div>
@@ -91,11 +90,11 @@ const ConfirmationContent = () => {
               <div className="space-y-2">
                 {/* Contact and Booking Details */}
                 <div>
-                  <PhoneIcon size={16} className="text-default-500 pr-2" />
+                  <PhoneIcon size={16} className="text-default-500 pr-2 inline-block" />
                   <span className="text-default-600">{phone}</span>
                 </div>
                 <div>
-                  <ProfileIcon size={16} className="text-default-500 pr-2" />
+                  <ProfileIcon size={16} className="text-default-500 pr-2 inline-block" />
                   <span className="text-default-600">
                     {appointmentDetails.name}
                   </span>
@@ -113,7 +112,7 @@ const ConfirmationContent = () => {
                     <div className="flex flex-col items-center">
                       <ClockIcon size={20} className="text-primary mb-1" />
                       <span className="text-small text-default-600">
-                        {convertTo12HourFormat(appointmentDetails.time!)}
+                        {appointmentDetails.time ? convertTo12HourFormat(appointmentDetails.time) : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -143,12 +142,14 @@ const ConfirmationContent = () => {
       </CardBody>
     </Card>
   );
-};
+}
 
-export default function ConfirmationWrapper() {
+export default function Confirmation() {
   return (
-    <Suspense fallback={<Spinner size="sm" color="primary" />}>
-      <ConfirmationContent />
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">
+      <Spinner size="lg" color="primary" />
+    </div>}>
+      <ConfirmationComponent />
     </Suspense>
   );
 }

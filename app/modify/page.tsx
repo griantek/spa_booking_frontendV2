@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
@@ -13,7 +13,7 @@ import {
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
 import { PressEvent } from "@react-types/shared";
-import { API_URLS, DEFAULT_VALUES } from "@/utils/constants";
+import { API_URLS } from "@/utils/constants";
 
 interface FormData {
   name: string;
@@ -32,7 +32,7 @@ interface Errors {
   general?: string;
 }
 
-const ModifyAppointmentForm = () => {
+function ModifyAppointmentComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -325,12 +325,12 @@ const ModifyAppointmentForm = () => {
       </Card>
     </div>
   );
-};
+}
 
 export default function ModifyAppointment() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ModifyAppointmentForm />
+      <ModifyAppointmentComponent />
     </Suspense>
   );
 }
