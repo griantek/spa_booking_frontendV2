@@ -70,7 +70,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="h-fit flex items-center justify-center p-4">
       <Card className=" w-full max-w-md">
         <CardBody className="flex items-center justify-center space-y-6 text-center">
           {/* <Image 
