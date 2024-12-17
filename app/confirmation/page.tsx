@@ -1,0 +1,146 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Card, CardBody, Spinner } from "@nextui-org/react";
+import { CheckCircleIcon } from "lucide-react";
+
+import {
+  PhoneOutlined as PhoneIcon,
+  CalendarOutlined as CalendarIcon,
+  ClockCircleOutlined as ClockIcon,
+  TagOutlined as TagIcon,
+  UserOutlined as ProfileIcon,
+} from "@ant-design/icons";
+
+interface AppointmentDetails {
+  name?: string;
+  service?: string;
+  date?: string;
+  time?: string;
+  notes?: string;
+}
+
+export default function Confirmation() {
+  const searchParams = useSearchParams();
+  const [appointmentDetails, setAppointmentDetails] = useState<AppointmentDetails | null>(null);
+  const [isCanceled, setIsCanceled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Extract parameters from the URL
+  const message = searchParams.get("message") || "Appointment Confirmed";
+  const phone = searchParams.get("phone");
+  const note = searchParams.get("note") || "Thank you for your booking!";
+  const name = searchParams.get("name");
+  const service = searchParams.get("service");
+  const date = searchParams.get("date");
+  const time = searchParams.get("time");
+
+  useEffect(() => {
+    setIsLoading(true);
+    // Check if the appointment is canceled
+    const canceled = !name && !service && !date && !time; // No detailed info indicates cancellation
+    setIsCanceled(canceled);
+
+    if (!canceled) {
+      setAppointmentDetails({
+        name,
+        service,
+        date,
+        time,
+        notes: note,
+      });
+    }
+
+    setIsLoading(false);
+  }, [name, service, date, time, note]);
+
+  const convertTo12HourFormat = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const period = +hours >= 12 ? "PM" : "AM";
+    const adjustedHours = +hours % 12 || 12; // Convert 0 to 12 for midnight
+    return `${adjustedHours}:${minutes} ${period}`;
+  };
+
+  return (
+    <Card className="m-4 max-w-md bg-default-50 shadow-sm">
+      <CardBody>
+        <div className="space-y-4">
+          {/* Confirmation Header */}
+          <div className="flex items-center space-x-3 flex-col">
+            <CheckCircleIcon className="text-success-500 mb-2" size={32} />
+            <h2 className="text-lg font-semibold text-default-700 text-center">
+              {message}
+            </h2>
+          </div>
+
+          {/* Content Based on Update or Cancellation */}
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <Spinner size="sm" color="primary" />
+            </div>
+          ) : isCanceled ? (
+            <div className="text-center text-default-600">
+              {/* <p>Your appointment has been successfully canceled.</p> */}
+              {/* <p>{note}</p> */}
+            </div>
+          ) : error ? (
+            <div className="text-danger text-center py-2">{error}</div>
+          ) : (
+            appointmentDetails && (
+              <div className="space-y-2">
+                {/* Contact and Booking Details */}
+                <div>
+                  <PhoneIcon size={16} className="text-default-500 pr-2" />
+                  <span className="text-default-600">{phone}</span>
+                </div>
+                <div>
+                  <ProfileIcon size={16} className="text-default-500 pr-2" />
+                  <span className="text-default-600">
+                    {appointmentDetails.name}
+                  </span>
+                </div>
+
+                <div className="grid grid-rows-2 gap-2 bg-default-100 rounded-lg p-3">
+                  {/* Row 1: Date and Time */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col items-center">
+                      <CalendarIcon size={20} className="text-primary mb-1" />
+                      <span className="text-small text-default-600">
+                        {appointmentDetails.date}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <ClockIcon size={20} className="text-primary mb-1" />
+                      <span className="text-small text-default-600">
+                        {convertTo12HourFormat(appointmentDetails.time!)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Service */}
+                  <div className="flex flex-col items-center">
+                    <TagIcon size={20} className="text-primary mb-1" />
+                    <span className="text-small text-default-600 text-center">
+                      {appointmentDetails.service}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Additional Notes */}
+                {appointmentDetails.notes && (
+                  <div className="bg-default-100 rounded-lg p-2">
+                    <p className="text-small text-default-500">
+                      <span className="font-medium">Notes:</span>{" "}
+                      {appointmentDetails.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )
+          )}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
