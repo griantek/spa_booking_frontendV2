@@ -95,7 +95,7 @@ function ConfirmationComponent() {
               <div className="text-center text-default-600">
                 {note && <p>{note}</p>}
               </div>
-              {/* <Button
+              <Button
                 onClick={handleCloseApp}
                 className={`${buttonStyles({
                   color: "success",
@@ -105,7 +105,7 @@ function ConfirmationComponent() {
                 fullWidth
               >
                 Close
-              </Button> */}
+              </Button>
             </div>
           ) : error ? (
             <div className="text-danger text-center py-2">{error}</div>
@@ -167,20 +167,20 @@ function ConfirmationComponent() {
                     </p>
                   </div>
                 )}
+                <Button
+                  onClick={handleCloseApp}
+                  className={`${buttonStyles({
+                    color: "success",
+                    radius: "full",
+                    variant: "shadow",
+                  })} text-white`}
+                  fullWidth
+                >
+                  Close
+                </Button>
               </div>
             )
           )}
-          <Button
-            onClick={handleCloseApp}
-            className={`${buttonStyles({
-              color: "success",
-              radius: "full",
-              variant: "shadow",
-            })} text-white`}
-            fullWidth
-          >
-            Close
-          </Button>
         </div>
       </CardBody>
     </Card>

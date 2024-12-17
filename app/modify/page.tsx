@@ -216,7 +216,7 @@ function ModifyAppointmentComponent() {
       });
 
       router.push(
-        "/confirmation?message=Your appointment has been cancelled successfully!"
+        `/confirmation?message=Your appointment has been cancelled successfully!&chatbotNo=${chatNo}`
       );
     } catch (error) {
       console.error("Error canceling appointment:", error);
