@@ -29,12 +29,12 @@ export default function Confirmation() {
 
   // Extract parameters from the URL
   const message = searchParams.get("message") || "Appointment Confirmed";
-  const phone = searchParams.get("phone");
+  const phone = searchParams.get("phone") || undefined;  // Convert null to undefined
   const note = searchParams.get("note") || "Thank you for your booking!";
-  const name = searchParams.get("name");
-  const service = searchParams.get("service");
-  const date = searchParams.get("date");
-  const time = searchParams.get("time");
+  const name = searchParams.get("name") || undefined;    // Convert null to undefined
+  const service = searchParams.get("service") || undefined;  // Convert null to undefined
+  const date = searchParams.get("date") || undefined;    // Convert null to undefined
+  const time = searchParams.get("time") || undefined;    // Convert null to undefined  
 
   useEffect(() => {
     setIsLoading(true);
