@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardBody, Spinner } from "@nextui-org/react";
 import { CheckCircleIcon } from "lucide-react";
@@ -20,7 +20,7 @@ interface AppointmentDetails {
   notes?: string;
 }
 
-export default function Confirmation() {
+const ConfirmationContent = () => {
   const searchParams = useSearchParams();
   const [appointmentDetails, setAppointmentDetails] = useState<AppointmentDetails | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
@@ -142,5 +142,13 @@ export default function Confirmation() {
         </div>
       </CardBody>
     </Card>
+  );
+};
+
+export default function ConfirmationWrapper() {
+  return (
+    <Suspense fallback={<Spinner size="sm" color="primary" />}>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
