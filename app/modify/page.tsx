@@ -35,6 +35,11 @@ interface Errors {
   general?: string;
 }
 
+type Slot = {
+  _id: string;
+  time: string;
+};
+
 function ModifyAppointmentComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -52,6 +57,7 @@ function ModifyAppointmentComponent() {
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(true);
   const [chatNo, setChatNo] = useState(true);
+  const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
 
   const token = searchParams.get("token");
 
@@ -165,12 +171,12 @@ function ModifyAppointmentComponent() {
     if (!formData.time) {
       newErrors.time = "Time is required.";
     } else if (formData.date === currentDate && formData.time < currentTime) {
-      newErrors.time = "Selected time has already passed."; 
+      newErrors.time = "Selected time has already passed.";
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return false; 
+      return false;
     }
 
     return true;
@@ -268,6 +274,35 @@ function ModifyAppointmentComponent() {
         ))}
       </SelectSection>
     ));
+  };
+
+  const fetchAvailableSlots = async (selectedDate: string) => {
+    try {
+      const response = await fetch(
+        `${API_URLS.BACKEND_URL}/available-times/${selectedDate}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const data: Slot[] = await response.json();
+        setAvailableSlots(data); // Update available slots state
+      } else {
+        console.error("Failed to fetch available slots.");
+      }
+    } catch (error) {
+      console.error("Error fetching slots:", error);
+    }
+  };
+
+  const convertTo12HourFormat = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const period = +hours >= 12 ? "PM" : "AM";
+    const adjustedHours = +hours % 12 || 12; // Convert 0 to 12 for midnight
+    return `${adjustedHours}:${minutes} ${period}`;
   };
 
   if (isLoading) {
@@ -371,7 +406,7 @@ function ModifyAppointmentComponent() {
                 errorMessage={errors.date}
                 fullWidth
               />
-              <Input
+              {/* <Input
                 type="time"
                 label="Time"
                 name="time"
@@ -387,7 +422,23 @@ function ModifyAppointmentComponent() {
                 color={errors.time ? "danger" : "default"}
                 errorMessage={errors.time}
                 fullWidth
-              />
+              /> */}
+              <Select
+                label="Time"
+                name="time"
+                selectedKeys={formData.time ? [formData.time] : []}
+                onChange={handleChange}
+                isDisabled={!formData.date || availableSlots.length === 0}
+                isInvalid={!!errors.time}
+                errorMessage={errors.time}
+                fullWidth
+              >
+                {availableSlots.map((slot) => (
+                  <SelectItem key={slot.time} value={slot.time}>
+                    {convertTo12HourFormat(slot.time)}
+                  </SelectItem>
+                ))}
+              </Select>
             </div>
 
             <Textarea

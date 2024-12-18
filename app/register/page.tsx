@@ -45,6 +45,7 @@ function RegisterComponent() {
 
   const [chatNo, setChatNo] = useState<boolean | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -54,6 +55,11 @@ function RegisterComponent() {
     date: "",
     notes: "",
   });
+
+  type Slot = {
+    _id: string;
+    time: string;
+  };
 
   const [errors, setErrors] = useState<Errors>({});
 
@@ -139,6 +145,28 @@ function RegisterComponent() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const fetchAvailableSlots = async (selectedDate: string) => {
+    try {
+      const response = await fetch(
+        `${API_URLS.BACKEND_URL}/available-times/${selectedDate}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const data: Slot[] = await response.json();
+        setAvailableSlots(data); // Update available slots state
+      } else {
+        console.error("Failed to fetch available slots.");
+      }
+    } catch (error) {
+      console.error("Error fetching slots:", error);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       | HTMLInputElement
@@ -157,6 +185,9 @@ function RegisterComponent() {
 
     // Validate the specific field
     validateField(name, value);
+    if (name === "date") {
+      fetchAvailableSlots(value);
+    }
   };
 
   // const handleChange = (
@@ -204,16 +235,16 @@ function RegisterComponent() {
     return now.toTimeString().slice(0, 5);
   };
 
-  const serviceOptions = [
-    { value: "Facial Treatment", label: "Facial Treatment" },
-    { value: "Massage Therapy", label: "Massage Therapy" },
-    { value: "Manicure & Pedicure", label: "Manicure & Pedicure" },
-    { value: "Hair Removal", label: "Hair Removal" },
-    { value: "Acne Treatment", label: "Acne Treatment" },
-    { value: "Body Scrub", label: "Body Scrub" },
-    { value: "Hot Stone Massage", label: "Hot Stone Massage" },
-    { value: "Nail Art & Design", label: "Nail Art & Design" },
-  ];
+  // const serviceOptions = [
+  //   { value: "Facial Treatment", label: "Facial Treatment" },
+  //   { value: "Massage Therapy", label: "Massage Therapy" },
+  //   { value: "Manicure & Pedicure", label: "Manicure & Pedicure" },
+  //   { value: "Hair Removal", label: "Hair Removal" },
+  //   { value: "Acne Treatment", label: "Acne Treatment" },
+  //   { value: "Body Scrub", label: "Body Scrub" },
+  //   { value: "Hot Stone Massage", label: "Hot Stone Massage" },
+  //   { value: "Nail Art & Design", label: "Nail Art & Design" },
+  // ];
 
   const renderServiceOptions = () => {
     return Object.entries(SERVICE_CATEGORIES).map(([category, services]) => (
@@ -225,6 +256,13 @@ function RegisterComponent() {
         ))}
       </SelectSection>
     ));
+  };
+
+  const convertTo12HourFormat = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const period = +hours >= 12 ? "PM" : "AM";
+    const adjustedHours = +hours % 12 || 12; // Convert 0 to 12 for midnight
+    return `${adjustedHours}:${minutes} ${period}`;
   };
 
   if (isLoading) {
@@ -323,7 +361,7 @@ function RegisterComponent() {
                 fullWidth
               />
 
-              <Input
+              {/* <Input
                 type="time"
                 label="Time"
                 name="time"
@@ -338,7 +376,31 @@ function RegisterComponent() {
                 isInvalid={!!errors.time}
                 errorMessage={errors.time}
                 fullWidth
-              />
+              /> */}
+              <Select
+                label="Time"
+                name="time"
+                selectedKeys={formData.time ? [formData.time] : []}
+                onChange={handleChange}
+                isDisabled={!formData.date || availableSlots.length === 0}
+                isInvalid={!!errors.time}
+                errorMessage={errors.time}
+                fullWidth
+              >
+                {availableSlots.map((slot) => (
+                  <SelectItem key={slot.time} value={slot.time}>
+                    {convertTo12HourFormat(slot.time)}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              {/* <datalist id="available-times">
+                {availableSlots.map((slot, index) => (
+                  <option key={index} value={slot.time}>
+                    {slot.time}
+                  </option>
+                ))}
+              </datalist> */}
             </div>
 
             <Textarea
