@@ -1,5 +1,11 @@
-"use client"
-import { Card, CardHeader, CardBody, CardFooter, Button } from "@nextui-org/react";
+"use client";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Button,
+} from "@nextui-org/react";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -26,15 +32,16 @@ export default function Home() {
           </CardHeader>
           <CardBody className="px-8">
             <p className="text-xl text-gray-200 leading-relaxed">
-              Unlock an incredible <span className="font-bold text-pink-300">50% discount</span> on 
-              your first purchase! This exclusive offer won't last long.
+              Unlock an incredible{" "}
+              <span className="font-bold text-pink-300">50% discount</span> on
+              your first purchase! This exclusive offer won&apos;t last long.
               <span className="block mt-2 text-sm text-gray-300">
                 Limited time only. Terms and conditions apply.
               </span>
             </p>
           </CardBody>
           <CardFooter className="px-8 pb-8">
-            <Button 
+            <Button
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-6 text-lg
                          transform transition-all hover:scale-105 hover:shadow-lg hover:from-pink-600 hover:to-purple-600"
               variant="solid"
