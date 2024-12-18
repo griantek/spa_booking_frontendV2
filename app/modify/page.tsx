@@ -119,7 +119,7 @@ function ModifyAppointmentComponent() {
     } else if (phoneParam) {
       fetchAppointmentData(phoneParam);
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [searchParams]);
 
@@ -165,11 +165,36 @@ function ModifyAppointmentComponent() {
     if (!formData.time) {
       newErrors.time = "Time is required.";
     } else if (formData.date === currentDate && formData.time < currentTime) {
-      newErrors.time = "Selected time has already passed.";
+      newErrors.time = "Selected time has already passed."; 
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false; 
+    }
+
+    return true;
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateFields()) {
+      return;
+    }
+
+    try {
+      await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
+        ...formData,
+        token,
+      });
+      router.push(
+        `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
+      );
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      setMessage("Failed to update the appointment.");
+    }
   };
 
   const handleChange = (
@@ -190,29 +215,6 @@ function ModifyAppointmentComponent() {
 
     // Validate the specific field
     validateField(name, value);
-  };
-
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateFields();
-    if (validateFields()) {
-      // console.log("Form is valid", formData);
-      try {
-        // Send updated data to the backend
-        await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
-          ...formData,
-          token,
-        });
-
-        // Pass all parameters to the Confirmation page
-        router.push(
-          `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
-        );
-      } catch (error) {
-        console.error("Error updating appointment:", error);
-        setMessage("Failed to update the appointment.");
-      }
-    }
   };
 
   const handleCancel = async (e: PressEvent) => {
@@ -345,16 +347,16 @@ function ModifyAppointmentComponent() {
             />
 
             <Select
-                          label="Select Service"
-                          name="service"
-                          selectedKeys={formData.service ? [formData.service] : []}
-                          onChange={handleChange}
-                          isInvalid={!!errors.service}
-                          errorMessage={errors.service}
-                          fullWidth
-                        >
-                          {renderServiceOptions()}
-                        </Select>
+              label="Select Service"
+              name="service"
+              selectedKeys={formData.service ? [formData.service] : []}
+              onChange={handleChange}
+              isInvalid={!!errors.service}
+              errorMessage={errors.service}
+              fullWidth
+            >
+              {renderServiceOptions()}
+            </Select>
 
             <div className="flex gap-4">
               <Input
