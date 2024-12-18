@@ -82,6 +82,8 @@ function ModifyAppointmentComponent() {
           date: appointmentResponse.data.date || "",
           notes: appointmentResponse.data.notes || "",
         }));
+        fetchAvailableSlots(appointmentResponse.data.date)
+
       } catch (error) {
         console.error("Error fetching appointment data:", error);
         setErrors({ general: "Failed to fetch appointment details." });
@@ -221,6 +223,9 @@ function ModifyAppointmentComponent() {
 
     // Validate the specific field
     validateField(name, value);
+    if (name === "date") {
+      fetchAvailableSlots(value);
+    }
   };
 
   const handleCancel = async (e: PressEvent) => {
