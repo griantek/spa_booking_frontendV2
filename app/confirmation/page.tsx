@@ -78,7 +78,7 @@ function ConfirmationComponent() {
       <CardBody>
         <div className="space-y-4">
           {/* Confirmation Header */}
-          <div className="flex items-center space-x-3 flex-col">
+          <div className="flex items-center space-x-3 flex-col ">
             <CheckCircleIcon className="text-success-500 mb-2" size={32} />
             <h2 className="text-lg font-semibold text-default-700 text-center">
               {message}
@@ -113,17 +113,17 @@ function ConfirmationComponent() {
             appointmentDetails && (
               <div className="space-y-2">
                 {/* Contact and Booking Details */}
-                <div>
+                {/* <div>
                   <PhoneIcon
                     size={16}
                     className="text-default-500 pr-2 inline-block"
                   />
                   <span className="text-default-600">{phone}</span>
-                </div>
-                <div>
+                </div> */}
+                <div className="">
                   <ProfileIcon
                     size={16}
-                    className="text-default-500 pr-2 inline-block"
+                    className="text-default-500 pr-2 "
                   />
                   <span className="text-default-600">
                     {appointmentDetails.name}

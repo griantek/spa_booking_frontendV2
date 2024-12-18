@@ -11,9 +11,10 @@ import {
   Card,
   CardBody,
   Skeleton,
+  SelectSection,
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
-
+import { SERVICE_CATEGORIES } from "@/utils/serviceConstants"; // Import the new constants
 import { API_URLS, DEFAULT_VALUES } from "@/utils/constants";
 
 interface FormData {
@@ -178,8 +179,8 @@ function RegisterComponent() {
         await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, {
           ...formData,
           token, // Include the token here
-      });
-      
+        });
+
         router.push(
           `/confirmation?phone=${formData.phone}&message=Your appointment has been registered successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
         );
@@ -213,6 +214,18 @@ function RegisterComponent() {
     { value: "Hot Stone Massage", label: "Hot Stone Massage" },
     { value: "Nail Art & Design", label: "Nail Art & Design" },
   ];
+
+  const renderServiceOptions = () => {
+    return Object.entries(SERVICE_CATEGORIES).map(([category, services]) => (
+      <SelectSection key={category} title={category}>
+        {services.map((service) => (
+          <SelectItem key={service.value} value={service.value}>
+            {service.label}
+          </SelectItem>
+        ))}
+      </SelectSection>
+    ));
+  };
 
   if (isLoading) {
     return (
@@ -280,7 +293,8 @@ function RegisterComponent() {
               label="Phone"
               name="phone"
               value={formData.phone}
-              readOnly
+              onChange={handleChange}
+              type="hidden"
               fullWidth
             />
 
@@ -293,11 +307,7 @@ function RegisterComponent() {
               errorMessage={errors.service}
               fullWidth
             >
-              {serviceOptions.map((service) => (
-                <SelectItem key={service.value} value={service.value}>
-                  {service.label}
-                </SelectItem>
-              ))}
+              {renderServiceOptions()}
             </Select>
 
             <div className="flex gap-4">

@@ -11,9 +11,11 @@ import {
   Card,
   CardBody,
   Skeleton,
+  SelectSection,
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
 import { PressEvent } from "@react-types/shared";
+import { SERVICE_CATEGORIES } from "@/utils/serviceConstants";
 import { API_URLS } from "@/utils/constants";
 
 interface FormData {
@@ -253,6 +255,19 @@ function ModifyAppointmentComponent() {
   // if (isLoading) {
   //   return <div>Loading...</div>;
   // }
+
+  const renderServiceOptions = () => {
+    return Object.entries(SERVICE_CATEGORIES).map(([category, services]) => (
+      <SelectSection key={category} title={category}>
+        {services.map((service) => (
+          <SelectItem key={service.value} value={service.value}>
+            {service.label}
+          </SelectItem>
+        ))}
+      </SelectSection>
+    ));
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-md mx-auto p-4">
@@ -324,25 +339,22 @@ function ModifyAppointmentComponent() {
               label="Phone"
               name="phone"
               value={formData.phone}
+              type="hidden"
               readOnly
               fullWidth
             />
 
             <Select
-              label="Select Service"
-              name="service"
-              selectedKeys={formData.service ? [formData.service] : []}
-              onChange={handleChange}
-              isInvalid={!!errors.service}
-              errorMessage={errors.service}
-              fullWidth
-            >
-              {serviceOptions.map((service) => (
-                <SelectItem key={service.value} value={service.value}>
-                  {service.label}
-                </SelectItem>
-              ))}
-            </Select>
+                          label="Select Service"
+                          name="service"
+                          selectedKeys={formData.service ? [formData.service] : []}
+                          onChange={handleChange}
+                          isInvalid={!!errors.service}
+                          errorMessage={errors.service}
+                          fullWidth
+                        >
+                          {renderServiceOptions()}
+                        </Select>
 
             <div className="flex gap-4">
               <Input

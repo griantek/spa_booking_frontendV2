@@ -1,3 +1,4 @@
+"use client"
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -11,45 +12,35 @@ import { Link } from "@nextui-org/link";
 import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
+import { useState, useEffect, useRef } from "react";
 
 import { siteConfig } from "@/config/site";
-// import { Button } from "@nextui-org/button";
-// import { Kbd } from "@nextui-org/kbd";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
-// import { Input } from "@nextui-org/input";
-
 export const Navbar = () => {
-  // const searchInput = (
-  //   <Input
-  //     aria-label="Search"
-  //     classNames={{
-  //       inputWrapper: "bg-default-100",
-  //       input: "text-sm",
-  //     }}
-  //     endContent={
-  //       <Kbd className="hidden lg:inline-block" keys={["command"]}>
-  //         K
-  //       </Kbd>
-  //     }
-  //     labelPlacement="outside"
-  //     placeholder="Search..."
-  //     startContent={
-  //       <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-  //     }
-  //     type="search"
-  //   />
-  // );
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navbarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navbarRef.current && !navbarRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
+    <NextUINavbar 
+      maxWidth="xl" 
+      position="sticky" 
+      ref={navbarRef}
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+    >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -60,7 +51,6 @@ export const Navbar = () => {
               height={36}
               style={{ filter: "grayscale(100%)" }}
             />
-
             <p className="text-inherit">XCELINFOTECH</p>
           </NextLink>
         </NavbarBrand>
@@ -83,29 +73,19 @@ export const Navbar = () => {
       </div>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {/* <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link> */}
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
 
       <NavbarMenu>
-        {/* {searchInput} */}
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig.navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
               <Link
-                // color={
-                //   index === 2
-                //     ? "primary"
-                //     : index === siteConfig.navMenuItems.length - 1
-                //       ? "danger"
-                //       : "foreground"
-                // }
                 color="foreground"
                 href={item.href}
                 size="lg"
+                onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
               </Link>
