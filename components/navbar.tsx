@@ -43,7 +43,7 @@ export const Navbar = () => {
     >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
+          <NextLink className="flex justify-start items-center gap-1" href="#">
             <img
               src="https://i.ibb.co/DkBX8VC/image-removebg-preview.png"
               alt="Logo"
@@ -51,7 +51,7 @@ export const Navbar = () => {
               height={36}
               style={{ filter: "grayscale(100%)" }}
             />
-            <p className="text-inherit">XCELINFOTECH</p>
+            <p className="text-inherit">THE COIFFEUR</p>
           </NextLink>
         </NavbarBrand>
       </NavbarContent>

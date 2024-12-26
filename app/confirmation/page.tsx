@@ -5,7 +5,7 @@ import { Button, Card, CardBody, Spinner } from "@nextui-org/react";
 import { CheckCircleIcon } from "lucide-react";
 
 import {
-  PhoneOutlined as PhoneIcon,
+  // PhoneOutlined as PhoneIcon,
   CalendarOutlined as CalendarIcon,
   ClockCircleOutlined as ClockIcon,
   TagOutlined as TagIcon,
@@ -24,6 +24,7 @@ interface AppointmentDetails {
 
 function ConfirmationComponent() {
   const searchParams = useSearchParams();
+  ``;
   const [appointmentDetails, setAppointmentDetails] =
     useState<AppointmentDetails | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
@@ -32,7 +33,7 @@ function ConfirmationComponent() {
 
   // Extract parameters from the URL
   const message = searchParams.get("message") || undefined;
-  const phone = searchParams.get("phone") || undefined;
+  // const phone = searchParams.get("phone") || undefined;
   const note = searchParams.get("note") || undefined;
   const name = searchParams.get("name") || undefined;
   const service = searchParams.get("service") || undefined;
@@ -121,10 +122,7 @@ function ConfirmationComponent() {
                   <span className="text-default-600">{phone}</span>
                 </div> */}
                 <div className="">
-                  <ProfileIcon
-                    size={16}
-                    className="text-default-500 pr-2 "
-                  />
+                  <ProfileIcon size={16} className="text-default-500 pr-2 " />
                   <span className="text-default-600">
                     {appointmentDetails.name}
                   </span>

@@ -203,9 +203,7 @@ function RegisterComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("reached");
     if (validateFields()) {
-      console.log("Fields validated");
       try {
         await axios.post(`${API_URLS.BACKEND_URL}/submit-booking`, {
           ...formData,

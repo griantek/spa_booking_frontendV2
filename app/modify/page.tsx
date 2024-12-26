@@ -12,9 +12,12 @@ import {
   CardBody,
   Skeleton,
   SelectSection,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
-import { PressEvent } from "@react-types/shared";
 import { SERVICE_CATEGORIES } from "@/utils/serviceConstants";
 import { API_URLS } from "@/utils/constants";
 
@@ -46,7 +49,7 @@ function ModifyAppointmentComponent() {
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    phone: searchParams.get("phone") || "", // Get phone from URL parameter
+    phone: searchParams.get("phone") || "",
     service: "",
     time: "",
     date: "",
@@ -58,8 +61,7 @@ function ModifyAppointmentComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [chatNo, setChatNo] = useState(true);
   const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
-
-  const token = searchParams.get("token");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -69,7 +71,6 @@ function ModifyAppointmentComponent() {
       try {
         setIsLoading(true);
 
-        // Fetch appointment details
         const appointmentResponse = await axios.get(
           `${API_URLS.BACKEND_URL}/appointment/${phoneToFetch}`
         );
@@ -82,8 +83,7 @@ function ModifyAppointmentComponent() {
           date: appointmentResponse.data.date || "",
           notes: appointmentResponse.data.notes || "",
         }));
-        fetchAvailableSlots(appointmentResponse.data.date)
-
+        fetchAvailableSlots(appointmentResponse.data.date);
       } catch (error) {
         console.error("Error fetching appointment data:", error);
         setErrors({ general: "Failed to fetch appointment details." });
@@ -96,7 +96,6 @@ function ModifyAppointmentComponent() {
       try {
         setIsLoading(true);
 
-        // Validate token and get phone
         const tokenResponse = await axios.get(
           `${API_URLS.BACKEND_URL}/validate-token?token=${token}`
         );
@@ -110,7 +109,6 @@ function ModifyAppointmentComponent() {
           name,
         }));
 
-        // Fetch appointment details for the phone from token
         await fetchAppointmentData(phone);
       } catch (error) {
         console.error("Error validating token:", error);
@@ -121,7 +119,6 @@ function ModifyAppointmentComponent() {
       }
     };
 
-    // Prioritize token validation, fallback to phone parameter
     if (token) {
       fetchDataWithToken(token);
     } else if (phoneParam) {
@@ -194,7 +191,7 @@ function ModifyAppointmentComponent() {
     try {
       await axios.post(`${API_URLS.BACKEND_URL}/modify-appointment`, {
         ...formData,
-        token,
+        token: searchParams.get("token"),
       });
       router.push(
         `/confirmation?phone=${formData.phone}&message=Your appointment has been updated successfully!&note=${formData.notes}&service=${formData.service}&name=${formData.name}&date=${formData.date}&time=${formData.time}&chatbotNo=${chatNo}`
@@ -207,32 +204,32 @@ function ModifyAppointmentComponent() {
 
   const handleChange = (
     e: React.ChangeEvent<
-      | HTMLInputElement
-      | HTMLInputElement
-      | HTMLSelectElement
-      | HTMLTextAreaElement
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
 
-    // Update form data
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
 
-    // Validate the specific field
     validateField(name, value);
     if (name === "date") {
       fetchAvailableSlots(value);
     }
   };
 
-  const handleCancel = async (e: PressEvent) => {
+  const handleCancelClick = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    setIsModalVisible(false);
     try {
       await axios.post(`${API_URLS.BACKEND_URL}/cancel-appointment`, {
         phone: formData.phone,
-        token: token,
+        token: searchParams.get("token"),
       });
 
       router.push(
@@ -244,6 +241,10 @@ function ModifyAppointmentComponent() {
     }
   };
 
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
+
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -252,33 +253,6 @@ function ModifyAppointmentComponent() {
   const getCurrentTime = () => {
     const now = new Date();
     return now.toTimeString().slice(0, 5);
-  };
-
-  const serviceOptions = [
-    { value: "Facial Treatment", label: "Facial Treatment" },
-    { value: "Massage Therapy", label: "Massage Therapy" },
-    { value: "Manicure & Pedicure", label: "Manicure & Pedicure" },
-    { value: "Hair Removal", label: "Hair Removal" },
-    { value: "Acne Treatment", label: "Acne Treatment" },
-    { value: "Body Scrub", label: "Body Scrub" },
-    { value: "Hot Stone Massage", label: "Hot Stone Massage" },
-    { value: "Nail Art & Design", label: "Nail Art & Design" },
-  ];
-
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  const renderServiceOptions = () => {
-    return Object.entries(SERVICE_CATEGORIES).map(([category, services]) => (
-      <SelectSection key={category} title={category}>
-        {services.map((service) => (
-          <SelectItem key={service.value} value={service.value}>
-            {service.label}
-          </SelectItem>
-        ))}
-      </SelectSection>
-    ));
   };
 
   const fetchAvailableSlots = async (selectedDate: string) => {
@@ -294,7 +268,7 @@ function ModifyAppointmentComponent() {
       );
       if (response.ok) {
         const data: Slot[] = await response.json();
-        setAvailableSlots(data); // Update available slots state
+        setAvailableSlots(data);
       } else {
         console.error("Failed to fetch available slots.");
       }
@@ -306,7 +280,7 @@ function ModifyAppointmentComponent() {
   const convertTo12HourFormat = (time: string) => {
     const [hours, minutes] = time.split(":");
     const period = +hours >= 12 ? "PM" : "AM";
-    const adjustedHours = +hours % 12 || 12; // Convert 0 to 12 for midnight
+    const adjustedHours = +hours % 12 || 12;
     return `${adjustedHours}:${minutes} ${period}`;
   };
 
@@ -318,7 +292,6 @@ function ModifyAppointmentComponent() {
             <Skeleton className="rounded-lg">
               <div className="h-12 rounded-lg bg-default-300"></div>
             </Skeleton>
-
             <div className="space-y-3">
               <Skeleton className="w-full rounded-lg">
                 <div className="h-10 rounded-lg bg-default-200"></div>
@@ -329,7 +302,6 @@ function ModifyAppointmentComponent() {
               <Skeleton className="w-full rounded-lg">
                 <div className="h-10 rounded-lg bg-default-200"></div>
               </Skeleton>
-
               <div className="flex gap-4">
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-10 rounded-lg bg-default-200"></div>
@@ -338,11 +310,9 @@ function ModifyAppointmentComponent() {
                   <div className="h-10 rounded-lg bg-default-200"></div>
                 </Skeleton>
               </div>
-
               <Skeleton className="w-full rounded-lg">
                 <div className="h-20 rounded-lg bg-default-200"></div>
               </Skeleton>
-
               <div className="flex gap-4">
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-12 rounded-lg bg-default-300"></div>
@@ -395,7 +365,17 @@ function ModifyAppointmentComponent() {
               errorMessage={errors.service}
               fullWidth
             >
-              {renderServiceOptions()}
+              {Object.entries(SERVICE_CATEGORIES).map(
+                ([category, services]) => (
+                  <SelectSection key={category} title={category}>
+                    {services.map((service) => (
+                      <SelectItem key={service.value} value={service.value}>
+                        {service.label}
+                      </SelectItem>
+                    ))}
+                  </SelectSection>
+                )
+              )}
             </Select>
 
             <div className="flex gap-4">
@@ -411,23 +391,6 @@ function ModifyAppointmentComponent() {
                 errorMessage={errors.date}
                 fullWidth
               />
-              {/* <Input
-                type="time"
-                label="Time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                disabled={!formData.date}
-                min={
-                  formData.date === getTodayDate()
-                    ? getCurrentTime()
-                    : undefined
-                }
-                isInvalid={!!errors.time}
-                color={errors.time ? "danger" : "default"}
-                errorMessage={errors.time}
-                fullWidth
-              /> */}
               <Select
                 label="Time"
                 name="time"
@@ -470,7 +433,7 @@ function ModifyAppointmentComponent() {
               <Button
                 color="danger"
                 variant="bordered"
-                onPress={handleCancel}
+                onPress={handleCancelClick}
                 className={buttonStyles({
                   color: "danger",
                   radius: "full",
@@ -488,6 +451,19 @@ function ModifyAppointmentComponent() {
           )}
         </CardBody>
       </Card>
+
+      <Modal isOpen={isModalVisible} onClose={handleCloseModal} backdrop="blur">
+        <ModalHeader>Confirm Cancellation</ModalHeader>
+        <ModalBody>
+          <p>Are you sure you want to cancel the appointment?</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" onPress={handleConfirmCancel}>
+            Yes, Cancel
+          </Button>
+          <Button onPress={handleCloseModal}>No, Go Back</Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }
@@ -502,7 +478,6 @@ export default function ModifyAppointment() {
               <Skeleton className="rounded-lg">
                 <div className="h-12 rounded-lg bg-default-300"></div>
               </Skeleton>
-
               <div className="space-y-3">
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-10 rounded-lg bg-default-200"></div>
@@ -513,7 +488,6 @@ export default function ModifyAppointment() {
                 <Skeleton className="w-full rounded-lg">
                   <div className="h-10 rounded-lg bg-default-200"></div>
                 </Skeleton>
-
                 <div className="flex gap-4">
                   <Skeleton className="w-full rounded-lg">
                     <div className="h-10 rounded-lg bg-default-200"></div>
