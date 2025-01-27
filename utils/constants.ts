@@ -1,5 +1,5 @@
 export const API_URLS = {
-    BACKEND_URL: "https://spa-booking-backend-kcqy.onrender.com", // Backend API base URL
+    BACKEND_URL: "http://34.131.92.248:5001", // Backend API base URL
   };
   
   export const DEFAULT_VALUES = {
