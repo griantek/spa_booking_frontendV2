@@ -1,5 +1,5 @@
 export const API_URLS = {
-    BACKEND_URL: "htts://34.131.92.248:5001", // Backend API base URL
+    BACKEND_URL: "https://34.131.92.248:5001", // Backend API base URL
   };
   
   export const DEFAULT_VALUES = {
