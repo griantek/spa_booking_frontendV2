@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState , Suspense} from 'react';
 import { Card, CardBody, Button, Textarea } from "@nextui-org/react";
 import { Star, Send, SmilePlus } from "lucide-react";
 import { button as buttonStyles } from "@nextui-org/theme";
@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { API_URLS, CHATBOT_NUMBER } from "@/utils/constants";
 
 
-const FeedbackPage = () => {
+const FeedbackContent = () => {
   const searchParams = useSearchParams();
   const [rating, setRating] = useState<number | null>(null);
   const [feedback, setFeedback] = useState("");
@@ -161,6 +161,14 @@ const appointmentId = searchParams.get("appointmentId") || undefined;
         </div>
       </CardBody>
     </Card>
+  );
+};
+
+const FeedbackPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FeedbackContent />
+    </Suspense>
   );
 };
 
