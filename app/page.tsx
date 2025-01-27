@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import https from "https";
 import { 
   Input, 
   Button, 
@@ -33,11 +32,7 @@ export default function Home() {
  
     const formattedPhone = `91${phone}`; // Add +91 prefix
     try {
-      const response = await axios.get(`${API_URLS.BACKEND_URL}/check-phone/${formattedPhone}`,{
-        httpsAgent: new https.Agent({  
-          rejectUnauthorized: false
-        })
-      });
+      const response = await axios.get(`${API_URLS.BACKEND_URL}/check-phone/${formattedPhone}`);
       if (response.data.exists) {
         // Phone number exists, navigate to Modify page and pass the formatted phone number
         toast.success("Phone number found! Redirecting to Modify page...", {
