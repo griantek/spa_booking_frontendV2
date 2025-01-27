@@ -103,7 +103,9 @@ const appointmentId = searchParams.get("appointmentId") || undefined;
           {/* Header */}
           <div className="text-center space-y-2">
             <h2 className="text-xl font-semibold text-default-700">Share Your Experience</h2>
-            <p className="text-default-500">We'd love to hear your thoughts!</p>
+            <p className="text-center text-default-600">
+              We&apos;d appreciate your valuable feedback. It helps us improve our services.
+            </p>
           </div>
 
           {/* Star Rating */}
